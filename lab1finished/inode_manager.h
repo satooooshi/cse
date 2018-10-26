@@ -52,7 +52,7 @@ class block_manager {
 
 // Inodes per block.
 #define IPB           1
-//(BLOCK_SIZE / sizeof(struct inode))
+//(BLOCK_SIZE / sizeof(struct inode)) == 1
 
 // Block containing inode i
 #define IBLOCK(i, nblocks)     ((nblocks)/BPB + (i)/IPB + 3)
@@ -74,7 +74,7 @@ typedef struct inode {
   unsigned int atime;
   unsigned int mtime;
   unsigned int ctime;
-  blockid_t blocks[NDIRECT+1];   // Data block addresses
+  blockid_t blocks[NDIRECT+1];   // Data block addresses, +1 represents One INDIRECT block
 } inode_t;
 
 class inode_manager {

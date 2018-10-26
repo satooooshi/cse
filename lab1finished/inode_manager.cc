@@ -9,6 +9,7 @@
 
 disk::disk()
 {
+  //bzero(buf,n) zero-clear the first n byte of memory.
   bzero(blocks, sizeof(blocks));
 }
 
@@ -149,10 +150,11 @@ block_manager::block_manager() {
 
     // mark superblock, bitmap, inode table as used
     char buf[BLOCK_SIZE];
-    memset(buf, ~0, BLOCK_SIZE);
+    memset(buf, ~0, BLOCK_SIZE);//if 1 then 00...01, ~0 then 111....11
     int last_bnum = IBLOCK(INODE_NUM, sb.nblocks);
 
     // blocks in bitmap to be filled with all ones
+    //by this spec, doesnt excute here.
     for (int bitmap_bnum = BBLOCK(1); bitmap_bnum < BBLOCK(last_bnum);
          bitmap_bnum++) {
         d->write_block(bitmap_bnum, buf);
@@ -265,6 +267,17 @@ inode_manager::alloc_inode(uint32_t type)
         bm->read_block(IBLOCK(inum, bm->sb.nblocks), buf);
 
         // note that inode id starts from 1
+        //------------
+        //struct ino{ 
+        //type
+        //size
+        //atime
+        //mtime
+        //ctime
+        //};
+        //--------------
+        // *ino is now point same adress as buf
+        // assignment to ino means to assignment to ino
         ino = (struct inode *)buf + (inum - 1) % IPB;
 
         if (ino->type == 0) { // find an empty inode
@@ -345,10 +358,11 @@ inode_manager::get_inode(uint32_t inum)
     return NULL;
   }
 
+    //assign inode"ino_disk" to memory allocated by malloc "ino"
   ino = (struct inode*)malloc(sizeof(struct inode));
   *ino = *ino_disk;
 
-  return ino;
+  return ino;//temporary inode buffer used for reading & modifying inode
 }
 
 void
@@ -433,7 +447,7 @@ inode_manager::read_file(uint32_t inum, char **buf_out, int *size)
         bm->read_block(ino->blocks[NDIRECT], (char *)indirect_block_buf);
 
         for (int i = 0; i < block_num - NDIRECT; i++) {
-            bm->read_block(indirect_block_buf[i], block_buf);
+            bm->read_block(indirect_block_buf[i], block_buf);//reading start from address &(ino->blocks[NDIRECT]) (when i==0)
 
             if (i == block_num - NDIRECT - 1) { // only copy partial data from
                                                 // last block
@@ -455,7 +469,7 @@ inode_manager::read_file(uint32_t inum, char **buf_out, int *size)
     unsigned int now = (unsigned int)time(NULL);
     ino->atime = now;
     put_inode(inum, ino);
-    free(ino);
+    free(ino);//temporary inode buffer used for reading & modifying inode
 
 }
 
@@ -635,6 +649,7 @@ inode_manager::write_file(uint32_t inum, const char *buf, int size)
     return ;
 }
 
+//Get inode attribute from inum and copy to a
 void
 inode_manager::getattr(uint32_t inum, extent_protocol::attr &a)
 {

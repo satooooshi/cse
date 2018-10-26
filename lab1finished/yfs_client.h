@@ -26,7 +26,7 @@ class yfs_client {
     unsigned long mtime;
     unsigned long ctime;
   };
-   typedef fileinfo slinkinfo;
+  typedef fileinfo slinkinfo;
   struct dirent {
     std::string name;
     yfs_client::inum inum;

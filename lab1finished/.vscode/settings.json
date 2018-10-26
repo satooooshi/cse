@@ -11,5 +11,6 @@
         "string_view": "cpp",
         "utility": "cpp",
         "vector": "cpp"
-    }
+    },
+    "git.ignoreLimitWarning": true
 }
